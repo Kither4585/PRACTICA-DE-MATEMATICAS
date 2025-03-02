@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego Matemático</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('https://source.unsplash.com/1600x900/?children,school');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body class="bg-blue-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center max-w-md w-full bg-opacity-90">
+        <h1 class="text-2xl font-bold text-blue-600">¡Juego Matemático!</h1>
+        <p class="text-lg mt-2">Resuelve la siguiente multiplicación:</p>
+        <div class="text-3xl font-bold my-4" id="question">3 × 4</div>
+        <input id="answer" type="number" class="border-2 border-blue-500 p-2 rounded w-24 text-center text-lg">
+        <button onclick="checkAnswer()" class="bg-blue-500 text-white px-4 py-2 rounded-lg ml-2">Comprobar</button>
+        <p id="feedback" class="text-lg font-semibold mt-4"></p>
+        <div class="mt-4">
+            <p>Aciertos: <span id="score" class="font-bold text-green-600">0</span></p>
+            <p>Errores: <span id="errors" class="font-bold text-red-600">0</span></p>
+            <p>Tiempo restante: <span id="timer" class="font-bold text-blue-600">10</span> segundos</p>
+        </div>
+        <button onclick="resetGame()" class="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg">Reiniciar</button>
+        <button onclick="toggleMusic()" class="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-lg">🔊 Silenciar</button>
+    </div>
+    <audio id="correctSound" src="https://www.myinstants.com/media/sounds/correct.mp3"></audio>
+    <audio id="wrongSound" src="https://www.myinstants.com/media/sounds/wrong.mp3"></audio>
+    <audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-funday.mp3" loop></audio>
+    <script>
+        let score = 0;
+        let errors = 0;
+        let num1, num2, correctAnswer;
+        let timer;
+        let timeLeft = 10;
+        let bgMusic = document.getElementById("bgMusic");
+        bgMusic.play();
+        
+        function generateQuestion() {
+            let difficulty = Math.floor(score / 5) + 1;
+            let maxNumber = difficulty * 3;
+            num1 = Math.floor(Math.random() * maxNumber) + 1;
+            num2 = Math.floor(Math.random() * maxNumber) + 1;
+            correctAnswer = num1 * num2;
+            document.getElementById("question").textContent = `${num1} × ${num2}`;
+            document.getElementById("answer").value = "";
+            resetTimer();
+        }
+        
+        function checkAnswer() {
+            let userAnswer = parseInt(document.getElementById("answer").value);
+            let feedback = document.getElementById("feedback");
+            let correctSound = document.getElementById("correctSound");
+            let wrongSound = document.getElementById("wrongSound");
+            
+            if (userAnswer === correctAnswer) {
+                feedback.textContent = "¡Correcto! ¡Bien hecho!";
+                feedback.className = "text-green-600 font-bold";
+                score++;
+                correctSound.play();
+            } else {
+                feedback.textContent = "Incorrecto, intenta otra vez.";
+                feedback.className = "text-red-600 font-bold";
+                errors++;
+                wrongSound.play();
+            }
+            
+            document.getElementById("score").textContent = score;
+            document.getElementById("errors").textContent = errors;
+            setTimeout(generateQuestion, 1000);
+        }
+        
+        function resetGame() {
+            score = 0;
+            errors = 0;
+            document.getElementById("score").textContent = score;
+            document.getElementById("errors").textContent = errors;
+            document.getElementById("feedback").textContent = "";
+            generateQuestion();
+        }
+        
+        function resetTimer() {
+            clearInterval(timer);
+            timeLeft = 10;
+            document.getElementById("timer").textContent = timeLeft;
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById("timer").textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    errors++;
+                    document.getElementById("errors").textContent = errors;
+                    document.getElementById("feedback").textContent = "¡Tiempo agotado!";
+                    document.getElementById("feedback").className = "text-red-600 font-bold";
+                    setTimeout(generateQuestion, 1000);
+                }
+            }, 1000);
+        }
+
+        function toggleMusic() {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                event.target.textContent = "🔊 Silenciar";
+            } else {
+                bgMusic.pause();
+                event.target.textContent = "🔈 Activar Música";
+            }
+        }
+        
+        generateQuestion();
+    </script>
+    <!-- Instrucciones: 
+         - Abre este archivo en un navegador para jugar.
+         - Ingresa la respuesta en el campo y haz clic en "Comprobar".
+         - Se mostrará un mensaje indicando si es correcto o incorrecto.
+         - La puntuación se actualizará automáticamente.
+         - Usa el botón "Reiniciar" para comenzar de nuevo.
+         - La dificultad aumentará cada 5 aciertos.
+         - Responde antes de que el tiempo se acabe.
+         - Puedes silenciar o activar la música de fondo.
+    -->
+</body>
+</html>
